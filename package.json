@@ -2,7 +2,7 @@
   "name": "frontend",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://fheravmdev.github.io/catalogo-forms",
+  "homepage": "https://fheravmdev.github.io/catalogo-forms", 
   "type": "module",
   "scripts": {
     "predeploy": "npm run build",

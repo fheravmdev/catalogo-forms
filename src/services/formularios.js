@@ -7,7 +7,7 @@ async function fetchFormularios() {
 
     return formularios;
   } catch (error) {
-    console.error("Error fetching forms:", error);
+    console.error("Error al obtener fomularios:", error);
     throw error; 
   }
 }

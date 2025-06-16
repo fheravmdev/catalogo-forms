@@ -1,14 +1,21 @@
 import './App.css'
 import { CircularProgress, createTheme } from '@mui/material'
+import { Routes, Route } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import instance from './axios-instance';
 import useAuth from './hooks/useAuth';
 import Login from './pages/Login.jsx';
 import Formularios from './pages/Formularios.jsx';
-import { useEffect, useState } from 'react';
-import instance from './axios-instance';
+import Manuales from './pages/Manuales.jsx';
+import Admin from './pages/Admin.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import NavBar from './components/NavBar.jsx';
 
 function App() {
   const { auth, setAuth } = useAuth();
   const [loading, setLoading] = useState(null)
+
+  //Sólo para usar MontSerrat, por ahora no tengo nada más en el Theme.
   const THEME = createTheme({
     typography: {
       "fontFamily": `"Montserrat", "Helvetica", "Arial", sans-serif`,
@@ -16,12 +23,14 @@ function App() {
     }
   });
 
+  //SIEMPRE en cada re-render de la app, se verifica el token con /me.
   useEffect(() => {
     setLoading(true);
     if (!auth?.isAuthenticated) {
       instance.get('/me')
         .then(res => {
           if (res.data.success) {
+            //Recibe los mismos usuario y roles que envió desde el backend
             setAuth({
               username: res.data.user.username,
               roles: res.data.user.roles,
@@ -37,17 +46,40 @@ function App() {
         });
     }
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await instance.post('/logout');
+      setAuth({});
+    } catch (e) {
+      setAuth({});
+    }
+  };
+
   if (loading) return (<CircularProgress sx={{ position: 'absolute', top: "50%", left: "50%" }}></CircularProgress>)
   return (
     <>
-      {
-        auth?.isAuthenticated ?
-          <Formularios Theme={THEME} user={auth} />
-          :
-          <Login Theme={THEME} />
-      }
+      <NavBar onLogout={handleLogout} />
+      <Routes>
+        <Route path="/" element={
+          auth?.isAuthenticated
+            ? <Formularios Theme={THEME} user={auth} />
+            : <Login Theme={THEME} />
+        } />
+        <Route path="/manuales" element={
+          <ProtectedRoute>
+            <Manuales />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
+            <Admin />
+          </ProtectedRoute>
+        } />
+      </Routes>
     </>
-  )
+
+  );
 }
 
 export default App

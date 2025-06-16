@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
-import { Grid, ThemeProvider, Typography, CircularProgress } from '@mui/material'
+import { Grid, ThemeProvider, Typography, CircularProgress, Paper } from '@mui/material'
 import { TextField, Button, Box } from '@mui/material';
 import login from '../services/login';
 import useAuth from '../hooks/useAuth';
@@ -56,49 +56,55 @@ function Login({ Theme }) {
                 direction="column"
                 alignItems="center"
                 justifyContent="center"
-                style={{ minHeight: '100vh' }}
+                style={{ height: 'calc(100vh - 80px)' }}
             >
                 <Grid >
-                    <Typography variant="h5" align="center" gutterBottom>
-                        Iniciar Sesión
-                    </Typography>
-                    <Box component="form" onSubmit={handleLogin}>
-                        <Grid container direction="column" spacing={2}>
-                            <Grid >
-                                <TextField
-                                    fullWidth
-                                    label="Usuario"
-                                    variant="outlined"
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    inputRef={usernameRef}
-                                />
+                    <Paper elevation={1} sx={{padding: 4}}>
+
+                        <Typography variant="h5" align="center" marginBottom={5}>
+                            Iniciar Sesión
+                        </Typography>
+                        <Box component="form" onSubmit={handleLogin}>
+
+                            <Grid container direction="column" spacing={2}>
+                                <Grid >
+                                    <TextField
+                                        fullWidth
+                                        label="Usuario"
+                                        variant="outlined"
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        inputRef={usernameRef}
+                                    />
+                                </Grid>
+                                <Grid >
+                                    <TextField
+                                        fullWidth
+                                        label="Contraseña"
+                                        type="password"
+                                        variant="outlined"
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                </Grid>
+                                <Grid >
+                                    <Button
+                                        fullWidth
+                                        variant="contained"
+                                        color="primary"
+                                        sx={{ backgroundColor: '#673ab7', fontWeight: 'bold' }}
+                                        type="submit"
+                                    >
+                                        Entrar
+                                    </Button>
+                                </Grid>
                             </Grid>
-                            <Grid >
-                                <TextField
-                                    fullWidth
-                                    label="Contraseña"
-                                    type="password"
-                                    variant="outlined"
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                            </Grid>
-                            <Grid >
-                                <Button
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    sx={{ backgroundColor: '#673ab7', fontWeight: 'bold' }}
-                                    type="submit"
-                                >
-                                    Entrar
-                                </Button>
-                            </Grid>
-                        </Grid>
-                        {error && <p ref={errorRef} style={{ color: 'red' }}>{error}</p>}
-                    </Box>
+                            {error && <p ref={errorRef} style={{ color: 'red' }}>{error}</p>}
+
+                        </Box>
+                    </Paper>
+
                 </Grid>
             </Grid>
-        </ThemeProvider>
+        </ThemeProvider >
     );
 }
 

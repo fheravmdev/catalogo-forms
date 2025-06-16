@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) =>{
 
     return(
         <AuthContext.Provider value = {{auth, setAuth}}>
-            {children}
+            {children} {/*Todos los children tienen acceso al objeto auth*/}
         </AuthContext.Provider>
     )
 }

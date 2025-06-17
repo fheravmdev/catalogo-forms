@@ -83,6 +83,7 @@ function Login({ Theme }) {
                                         type="password"
                                         variant="outlined"
                                         onChange={(e) => setPassword(e.target.value)}
+                                        autoComplete='off'
                                     />
                                 </Grid>
                                 <Grid >

@@ -2,11 +2,12 @@
   "name": "frontend",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://fheravmdev.github.io/catalogo-forms", 
+  "homepage": "https://fheravmdev.github.io/catalogo-forms",
   "type": "module",
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
+    "postbuild": "copy \"dist\\index.html\" \"dist\\404.html\"",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
@@ -15,6 +16,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.1.1",
     "@mui/material": "^7.1.1",
     "axios": "^1.9.0",
     "react": "^19.1.0",

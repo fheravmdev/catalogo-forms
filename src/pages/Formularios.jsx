@@ -27,6 +27,7 @@ function Formularios({ Theme, user }) {
 
                 allForms = Object.values(response).flat();
             }
+
             setFormularios(allForms);
         };
         try {
@@ -39,19 +40,16 @@ function Formularios({ Theme, user }) {
         finally {
             setLoading(false)
         }
-
     }, []);
 
 
     const uniqueAreas = [...new Set(formularios.map(form => form.area).filter(Boolean))];
 
-    if(loading) return(<CircularProgress sx={{position: 'absolute', top: "50%", left: "50%"}}></CircularProgress>)
+    if (loading) return (<CircularProgress sx={{ position: 'absolute', top: "50%", left: "50%" }}></CircularProgress>)
     return (
         <ThemeProvider theme={Theme}>
             <Grid container spacing={4} sx={{ padding: 1 }}>
                 <Stack direction="column" spacing={2} width="100%">
-                    <Grid item>
-                    </Grid>
                     <Grid container spacing={2}>
                         {uniqueAreas.map(area => (
                             <Grid key={area} size={{ xs: 12, md: 4 }}>

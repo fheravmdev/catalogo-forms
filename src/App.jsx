@@ -10,11 +10,15 @@ import Manuales from './pages/Manuales.jsx';
 import Admin from './pages/Admin.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import NavBar from './components/NavBar.jsx';
+import FilesAdminPage from './pages/FilesAdminPage.jsx';
+import UsersAdminPage from './pages/UsersAdminPage.jsx';
+import FormsAdminPage from './pages/FormsAdminPage.jsx';
+import MePage from './pages/MePage.jsx';
+
 
 function App() {
   const { auth, setAuth } = useAuth();
   const [loading, setLoading] = useState(null)
-
   //Sólo para usar MontSerrat, por ahora no tengo nada más en el Theme.
   const THEME = createTheme({
     typography: {
@@ -75,7 +79,17 @@ function App() {
           <ProtectedRoute allowedRoles={["ADMIN"]}>
             <Admin />
           </ProtectedRoute>
-        } />
+        }>
+          <Route path="" element={<Admin />} />
+          <Route path="files" element={<FilesAdminPage />} />
+          <Route path="users" element={<UsersAdminPage />} />
+          <Route path="forms" element={<FormsAdminPage />} />
+        </Route>
+        <Route path='/me' element={
+          <ProtectedRoute>
+            <MePage></MePage>
+          </ProtectedRoute>
+        }></Route>
       </Routes>
     </>
 

@@ -72,7 +72,7 @@ function App() {
         } />
         <Route path="/manuales" element={
           <ProtectedRoute>
-            <Manuales />
+            <Manuales Theme={THEME} />
           </ProtectedRoute>
         } />
         <Route path="/admin" element={

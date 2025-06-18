@@ -1,7 +1,5 @@
 import { ListSubheader, Paper, List, ListItemButton, ListItemText, ListItemIcon } from "@mui/material";
 function AreaFormsGroup({ area, forms, colors}) {
-
-    
     return (
         <Paper
             elevation={2}

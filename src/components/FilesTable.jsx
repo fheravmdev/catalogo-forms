@@ -33,7 +33,7 @@ function FilesTable() {
     };
 
     const handleDelete = (file) => {
-        // Implementar
+        
     };
 
     const handleShare = (file) => {

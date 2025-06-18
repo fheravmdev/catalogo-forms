@@ -19,6 +19,7 @@ export async function uploadFile(formData) {
 export async function getMyFiles() {
     try {
         const response = await axios.get("/me/files", { withCredentials: true });
+        console.log(response.data)
         return response.data;
     } catch (error) {
         return [];
@@ -46,29 +47,11 @@ export async function downloadFile(idArchivo, nombreArchivo) {
     }
 }
 
-export async function getUsers() {
+export async function shareFile(permisosArray) {
     try {
-        const response = await axios.get("/users", { withCredentials: true });
-        return response.data;
+        const res = await axios.post("/archivo_permiso/bulk", permisosArray, { withCredentials: true });
+        return res.data;
     } catch (error) {
-        return [];
+        return { success: false, error: error?.response?.data?.error || error.message };
     }
-}
-
-export async function shareFile({ idArchivo, idUser, permisos }) {
-    // permisos: array of strings, e.g. ['ver', 'eliminar']
-    let results = [];
-    for (const permiso of permisos) {
-        try {
-            const res = await axios.post("/archivo_permiso", {
-                idArchivo,
-                idUser,
-                permiso
-            }, { withCredentials: true });
-            results.push(res.data);
-        } catch (error) {
-            results.push({ success: false, error: error?.response?.data?.error || error.message });
-        }
-    }
-    return results;
 }

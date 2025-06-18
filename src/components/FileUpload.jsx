@@ -8,8 +8,8 @@ function FileUpload() {
     const [file, setFile] = useState(null)
     const [tipoArchivo, setTipoArchivo] = useState('Seleccionar...')
     const [descripcion, setDescripcion] = useState('')
+    const [area, setArea] = useState('GESTIÓN HUMANA') // Default or empty
     const formRef = useRef()
-    
 
     const handleFileUpload = async (e) => {
         e.preventDefault();
@@ -19,6 +19,7 @@ function FileUpload() {
         formData.append("file", file);
         formData.append("tipo_archivo", tipoArchivo);
         formData.append("descripcion", descripcion);
+        formData.append("area", area); // <-- NEW
 
         const result = await uploadFile(formData);
         if (result.success) {
@@ -26,16 +27,17 @@ function FileUpload() {
             setFile(null);
             setTipoArchivo("Seleccionar...");
             setDescripcion("");
+            setArea("GESTIÓN HUMANA");
         } else {
             alert("Error al subir archivo: " + (result.error || "Desconocido"));
         }
     }
 
     const tiposArchivo = ["MANUAL", "CONTRATO", "OTROS"]
+    const areas = ["GESTIÓN HUMANA", "CONTRALORIA", "INFORMÁTICA", "CONTABILIDAD"]
 
     const handleFileChanged = (file) => {
         if (file) setFile(file)
-        console.log(file)
     }
 
     return (
@@ -48,8 +50,7 @@ function FileUpload() {
                         justifyContent: "start",
                         marginBottom: 0
                     }}>
-                        <FileInput handleFileChanged={handleFileChanged} >
-                        </FileInput>
+                        <FileInput handleFileChanged={handleFileChanged} />
                         {file && (
                             <>
                                 <Typography variant="body1" gutterBottom >Subiendo: {file.name}</Typography>
@@ -57,11 +58,20 @@ function FileUpload() {
                                     <MenuItem value="Seleccionar...">
                                         <em>Seleccionar...</em>
                                     </MenuItem>
-                                    {tiposArchivo.map(tipo => {
-                                        return (
-                                            <MenuItem value={tipo}>{tipo}</MenuItem>
-                                        )
-                                    })}
+                                    {tiposArchivo.map(tipo => (
+                                        <MenuItem key={tipo} value={tipo}>{tipo}</MenuItem>
+                                    ))}
+                                </TextField>
+                                <TextField
+                                    select
+                                    label="Área"
+                                    value={area}
+                                    onChange={e => setArea(e.target.value)}
+                                    required
+                                >
+                                    {areas.map(a => (
+                                        <MenuItem key={a} value={a}>{a}</MenuItem>
+                                    ))}
                                 </TextField>
                                 <TextField
                                     label="Descripción del archivo"
@@ -69,10 +79,7 @@ function FileUpload() {
                                     autoComplete='off'
                                     value={descripcion}
                                     onChange={(e) => { setDescripcion(e.target.value) }}
-                                    
-                                >
-
-                                </TextField>
+                                />
                                 <Button
                                     type="submit"
                                     fullWidth

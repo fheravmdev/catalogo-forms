@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Grid, ThemeProvider, Typography, Button, Stack, CircularProgress } from '@mui/material'
 import AreaFormsGroup from './../components/AreaFormsGroup.jsx';
-import { fetchFormularios } from '../services/formularios.js'
+import { getMyForms } from '../services/formularios.js'
 import useAuth from '../hooks/useAuth';
 
 const areaColors = {
@@ -18,30 +18,24 @@ function Formularios({ Theme, user }) {
 
     useEffect(() => {
         const loadFormularios = async () => {
-            const response = await fetchFormularios();
-
-            let allForms = [];
-            if (Array.isArray(response)) {
-                allForms = response;
-            } else {
-
-                allForms = Object.values(response).flat();
+            setLoading(true);
+            try {
+                const response = await getMyForms();
+                let allForms = [];
+                if (Array.isArray(response)) {
+                    allForms = response;
+                } else {
+                    allForms = Object.values(response).flat();
+                }
+                setFormularios(allForms);
+            } catch (error) {
+                setFormularios([]);
+            } finally {
+                setLoading(false);
             }
-
-            setFormularios(allForms);
         };
-        try {
-            setLoading(true)
-            loadFormularios();
-        } catch (error) {
-            console.log(error)
-            setLoading(false)
-        }
-        finally {
-            setLoading(false)
-        }
+        loadFormularios();
     }, []);
-
 
     const uniqueAreas = [...new Set(formularios.map(form => form.area).filter(Boolean))];
 
@@ -52,7 +46,7 @@ function Formularios({ Theme, user }) {
                 <Stack direction="column" spacing={2} width="100%">
                     <Grid container spacing={2}>
                         {uniqueAreas.map(area => (
-                            <Grid key={area} size={{ xs: 12, md: 4 }}>
+                            <Grid key={area} size={{sm:12, md: 4}}>
                                 <AreaFormsGroup
                                     area={area}
                                     forms={formularios.filter(form => form.area === area)}

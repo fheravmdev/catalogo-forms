@@ -81,9 +81,9 @@ function App() {
           </ProtectedRoute>
         }>
           <Route path="" element={<Admin />} />
-          <Route path="files" element={<FilesAdminPage />} />
           <Route path="users" element={<UsersAdminPage />} />
           <Route path="forms" element={<FormsAdminPage />} />
+          <Route path="files" element={<FilesAdminPage />} />
         </Route>
         <Route path='/me' element={
           <ProtectedRoute>

@@ -7,18 +7,23 @@ import useAuth from "../hooks/useAuth";
 
 function MeFilesTab() {
   const {auth} = useAuth()
+  const [refresh, setRefresh] = useState(0)
+  
+  const handleFilesChanged = () => {
+    setRefresh(refresh+1)
+    console.log(refresh)
+  }
   return (
     <Box padding={1}>
       {
         auth?.roles.find(role=> role=="CONTRALORIA" || role=="ADMIN") &&
-        <>
-          <Typography variant="h6" gutterBottom>Subir un archivo</Typography>
-
-          <FileUpload></FileUpload>
+        <> {/* Formulario para subir archivos, renderizado si el rol del authContext es CONTRALORIA o ADMIN. */}
+          <FileUpload handleFilesChanged={handleFilesChanged} ></FileUpload>
         </>
       }
       <Paper sx={{ p: 2 }}>
-        <FilesTable></FilesTable>
+        {/* Tabla para ver los archivos a los que el usuario tiene acceso. */}
+        <FilesTable parentRefresh={refresh}></FilesTable>
       </Paper>
     </Box>
   );

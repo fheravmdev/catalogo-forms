@@ -1,11 +1,17 @@
-import { AppBar, Toolbar, Typography, Button, Box, Drawer } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, Box, Drawer, IconButton, List, ListItem, ListItemText } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { useState } from "react";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 
 const NavBar = ({ onLogout }) => {
   const { auth } = useAuth();
   const location = useLocation();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const routeTitles = {
     "/": "Formularios",
@@ -22,46 +28,85 @@ const NavBar = ({ onLogout }) => {
     { to: "/", label: "Formularios", show: !!auth?.isAuthenticated },
     { to: "/manuales", label: "Manuales", show: !!auth?.isAuthenticated },
     { to: "/admin", label: "Admin", show: auth?.roles?.includes("ADMIN") },
-    { to: "/me", label: auth.username, show: !!auth?.isAuthenticated  },
+    { to: "/me", label: auth.username, show: !!auth?.isAuthenticated },
   ];
 
+
   return (
-    <AppBar position="static" sx={{ mb: 2, backgroundColor: "#673ab7" }}>
-      <Toolbar>
-        <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-          <Typography variant="h5">
+    <>
+      <AppBar position="static" sx={{ mb: 2, backgroundColor: "#673ab7" }}>
+        <Toolbar>
+          {isMobile && (
+            <IconButton color="inherit" edge="start" onClick={() => setDrawerOpen(true)}>
+              <MenuIcon />
+            </IconButton>
+          )}
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
             {pageTitle}  &nbsp;
           </Typography>
           <Typography variant="h6">
             MLCORP - FORMS
           </Typography>
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          {links.filter(link => link.show).map(link => (
-            <Button
-              key={link.to}
-              color="inherit"
-              component={RouterLink}
-              to={link.to}
-              sx={{ ml: 2 }}
-            >
-              {link.label}
-            </Button>
-          ))}
-          {auth?.isAuthenticated && (
-            <Button
-              color="secondary"
-              variant="contained"
-              onClick={onLogout}
-              sx={{ ml: 3, backgroundColor: "#fff", color: "#673ab7", fontWeight: "bold" }}
-            >
-              Cerrar sesión
-            </Button>
+          {!isMobile && (
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              {links.filter(link => link.show).map(link => (
+                <Button
+                  key={link.to}
+                  color="inherit"
+                  component={RouterLink}
+                  to={link.to}
+                  sx={{ ml: 2 }}
+                >
+                  {link.label}
+                </Button>
+              ))}
+              {auth?.isAuthenticated && (
+                <Button
+                  color="secondary"
+                  variant="contained"
+                  onClick={onLogout}
+                  sx={{ ml: 3, backgroundColor: "#fff", color: "#673ab7", fontWeight: "bold" }}
+                >
+                  Cerrar sesión
+                </Button>
+              )}
+            </Box>
           )}
-        </Box>
-      </Toolbar>
-
-    </AppBar>
+        </Toolbar>
+      </AppBar>
+      {auth?.isAuthenticated ? (
+        <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+          <List sx={{ width: 220 }}>
+            {links.map(link => (
+              <ListItem key={link.label}>
+                <Button
+                  key={link.to}
+                  color="inherit"
+                  component={RouterLink}
+                  to={link.to}
+                  sx={{ ml: 2 }}
+                  onClick={() => { setDrawerOpen(false) }}
+                >
+                  {link.label}
+                </Button>
+              </ListItem>
+            ))}
+            <ListItem>
+              {auth?.isAuthenticated && (
+                <Button
+                  color="secondary"
+                  variant="contained"
+                  onClick={() => { setDrawerOpen(false); onLogout() }}
+                  sx={{ ml: 3, backgroundColor: "#fff", color: "#673ab7", fontWeight: "bold" }}
+                >
+                  Cerrar sesión
+                </Button>
+              )}
+            </ListItem>
+          </List>
+        </Drawer>
+      ) : <></>}
+    </>
   );
 };
 

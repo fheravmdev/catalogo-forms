@@ -19,7 +19,7 @@ export async function uploadFile(formData) {
 export async function getMyFiles() {
     try {
         const response = await axios.get("/me/files", { withCredentials: true });
-        console.log(response.data)
+
         return response.data;
     } catch (error) {
         return [];
@@ -53,5 +53,19 @@ export async function shareFile(permisosArray) {
         return res.data;
     } catch (error) {
         return { success: false, error: error?.response?.data?.error || error.message };
+    }
+}
+
+export async function deleteFile(idArchivo) {
+    try {
+        const res = await axios.delete(`/file/${idArchivo}`, {
+            responseType: "blob",
+            withCredentials: true,
+        });
+
+        return {success: true}
+    } catch (error) {
+        console.log(error)
+        return { success: false, error: error?.response?.data?.error || error.message }
     }
 }

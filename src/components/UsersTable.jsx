@@ -26,8 +26,8 @@ function UsersTable() {
 
     return (
         <Paper elevation={1}>
-            <TableContainer>
-                <Table>
+            <TableContainer sx={{maxHeight: "720px"}}>
+                <Table stickyHeader>
                     <TableHead>
                         <TableRow>
                             {columns.map(col => {

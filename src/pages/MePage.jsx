@@ -12,7 +12,7 @@ function MePage() {
       <Tabs value={tab} onChange={handleChange} centered>
         <Tab label="Mis archivos" />
       </Tabs>
-      <Box sx={{ mt: 3 }}>
+      <Box sx={{ mt: 0 }}>
         {tab === 0 && <MeFilesTab />}
       </Box>
     </Box>

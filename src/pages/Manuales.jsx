@@ -40,7 +40,7 @@ function Manuales({ Theme }) {
                 <Stack direction="column" spacing={2} width="100%">
                     <Grid container spacing={2}>
                         {uniqueAreas.map(area => (
-                            <Grid key={area} item xs={12} md={4}>
+                            <Grid key={area} size={{sm:12, md: 4}}>
                                 <AreaManualsGroup
                                     area={area}
                                     manuals={manuales.filter(m => m.area === area)}

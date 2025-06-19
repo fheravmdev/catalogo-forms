@@ -1,39 +1,69 @@
 import { useEffect, useState } from "react";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    Paper, Tooltip, Typography, Button, IconButton
+    Paper, Tooltip, Typography, IconButton, Backdrop, CircularProgress
 } from "@mui/material";
-import { downloadFile, getMyFiles } from "../services/files";
+import { deleteFile, downloadFile, getMyFiles } from "../services/files";
 import DownloadIcon from "@mui/icons-material/Download";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ShareIcon from "@mui/icons-material/Share";
 import ShareFileModal from "./ShareFileModal";
+import useAuth from "../hooks/useAuth";
 
-const columns = [
-    { field: "idArchivo", headerName: "ID", description: "ID del archivo" },
-    { field: "nombre", headerName: "Nombre", description: "Nombre del archivo" },
-    { field: "tipo_archivo", headerName: "Tipo", description: "Tipo de archivo" },
-    { field: "fecha_subida", headerName: "Fecha", description: "Fecha de subida" },
-    { field: "acciones", headerName: "Acciones", description: "Acciones disponibles" },
-];
 
-function FilesTable() {
+function FilesTable({parentRefresh}) {
     const [files, setFiles] = useState([]);
     const [shareFile, setShareFile] = useState(null);
-
+    const [loading, setLoading] = useState(false);
+    const [refresh, setRefresh] = useState(0);
+    const { auth } = useAuth()
     useEffect(() => {
-        getMyFiles().then(setFiles);
-    }, []);
+        const loadFiles = async () => {
+            try {
+                setLoading(true);
+                const result = await getMyFiles().then(setFiles)
+            } catch (error) {
+                console.log(error)
+                setLoading(false)
+            } finally {
+                setLoading(false)
+            }
+        }
+        loadFiles();
+    }, [refresh, parentRefresh]);
 
     const handleDownload = async (file) => {
-        const result = await downloadFile(file.idArchivo, file.nombre);
-        if (!result.success) {
-            alert("No se pudo descargar el archivo: " + result.error);
+        try {
+            setLoading(true)
+            const result = await downloadFile(file.idArchivo, file.nombre);
+            if (!result.success) {
+                alert("No se pudo descargar el archivo: " + result.error);
+            }
+        } catch (error) {
+            setLoading(false)
+            console.log(error)
+        } finally {
+            setLoading(false)
         }
+
     };
 
-    const handleDelete = (file) => {
-        
+    const handleDelete = async (file) => {
+        console.log("hola mundo")
+        try {
+            setLoading(true);
+            const result = await deleteFile(file.idArchivo)
+            if(result.success){
+                alert("Archivo eliminado exitosamente!")
+            }
+        } catch (error) {
+            setLoading(false)
+            console.log(error)
+        }
+        finally{
+            setLoading(false)
+            setRefresh(refresh+1);
+        }
     };
 
     const handleShare = (file) => {
@@ -44,8 +74,23 @@ function FilesTable() {
         setShareFile(null);
     };
 
+
+    const columns = [
+        { field: "idArchivo", headerName: "ID", description: "ID del archivo" },
+        { field: "nombre", headerName: "Nombre", description: "Nombre del archivo" },
+        { field: "tipo_archivo", headerName: "Tipo", description: "Tipo de archivo" },
+        { field: "fecha_subida", headerName: "Fecha", description: "Fecha de subida" },
+        { field: "acciones", headerName: "Acciones", description: "Acciones disponibles" },
+    ];
+
     return (
         <>
+            <Backdrop
+                sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+                open={loading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
             <TableContainer component={Paper} sx={{ maxHeight: "calc(100vh - 125px)" }}>
                 <Table stickyHeader>
                     <TableHead>

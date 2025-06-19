@@ -28,14 +28,15 @@ function Admin() {
                     {/* <ListItem component={Link} to="/admin/">
                         <ListItemText primary="Dashbaord" />
                     </ListItem> */}
-                    <ListItem component={Link} to="/admin/files">
-                        <ListItemText primary="Gestionar archivos" />
-                    </ListItem>
+
                     <ListItem component={Link} to="/admin/users">
                         <ListItemText primary="Gestionar usuarios" />
                     </ListItem>
                     <ListItem component={Link} to="/admin/forms">
                         <ListItemText primary="Gestionar formularios" />
+                    </ListItem>
+                    <ListItem component={Link} to="/admin/files">
+                        <ListItemText primary="Gestionar archivos" />
                     </ListItem>
                 </List>
             </Drawer>

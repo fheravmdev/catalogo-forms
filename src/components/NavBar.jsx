@@ -5,6 +5,7 @@ import useAuth from "../hooks/useAuth";
 import { useState } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 const NavBar = ({ onLogout }) => {
   const { auth } = useAuth();
@@ -45,7 +46,7 @@ const NavBar = ({ onLogout }) => {
             {pageTitle}  &nbsp;
           </Typography>
           <Typography variant="h6">
-            MLCORP - FORMS
+            MLCORP - ARCHIVO
           </Typography>
           {!isMobile && (
             <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -56,6 +57,7 @@ const NavBar = ({ onLogout }) => {
                   component={RouterLink}
                   to={link.to}
                   sx={{ ml: 2 }}
+                  startIcon={link.to == '/me' ? <AccountCircleIcon /> : ''}
                 >
                   {link.label}
                 </Button>
@@ -77,7 +79,7 @@ const NavBar = ({ onLogout }) => {
       {auth?.isAuthenticated ? (
         <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
           <List sx={{ width: 220 }}>
-            {links.map(link => (
+            {links.filter(link => link.show).map(link => (
               <ListItem key={link.label}>
                 <Button
                   key={link.to}
@@ -86,6 +88,7 @@ const NavBar = ({ onLogout }) => {
                   to={link.to}
                   sx={{ ml: 2 }}
                   onClick={() => { setDrawerOpen(false) }}
+                  startIcon={link.to == '/me' ? <AccountCircleIcon /> : ''}
                 >
                   {link.label}
                 </Button>

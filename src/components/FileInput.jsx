@@ -20,6 +20,7 @@ function FileInput({ handleFileChanged }) {
                 onClick={() => {
                     fileRef.current.click() //para que se active el evento del input type file
                 }}
+                fullWidth
             >
                 Seleccionar archivo
             </Button>

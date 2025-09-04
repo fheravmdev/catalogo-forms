@@ -1,8 +1,12 @@
 import { useRef, useEffect, useState } from 'react'
-import { Grid, ThemeProvider, Typography, CircularProgress, Paper } from '@mui/material'
+import { Grid, ThemeProvider, Typography, CircularProgress, Paper, OutlinedInput, InputAdornment, IconButton } from '@mui/material'
 import { TextField, Button, Box } from '@mui/material';
 import login from '../services/login';
 import useAuth from '../hooks/useAuth';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import PasswordInput from '../components/PasswordInput';
+import getDeviceName from '../services/deviceInfo';
 
 function Login({ Theme }) {
     const { setAuth } = useAuth();
@@ -14,6 +18,8 @@ function Login({ Theme }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    const [showPass, setShowPass] = useState(false);
     useEffect(() => {
         usernameRef.current.focus();
     }, [])
@@ -22,10 +28,12 @@ function Login({ Theme }) {
         setError(null);
     }, [username, password])
 
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true)
         try {
+            console.log(getDeviceName())
             const user = { username, password };
             const result = await login(user);
 
@@ -40,6 +48,7 @@ function Login({ Theme }) {
                 setError(result.message || "Credenciales inválidas");
             }
         } catch (err) {
+            console.log(err)
             setAuth({});
             setError("Ocurrió un error al intentar iniciar sesión");
             setLoading(false)
@@ -59,7 +68,7 @@ function Login({ Theme }) {
                 style={{ height: 'calc(100vh - 80px)' }}
             >
                 <Grid >
-                    <Paper elevation={1} sx={{padding: 4}}>
+                    <Paper elevation={1} sx={{ padding: 4 }}>
 
                         <Typography variant="h5" align="center" marginBottom={5}>
                             Iniciar Sesión
@@ -77,14 +86,12 @@ function Login({ Theme }) {
                                     />
                                 </Grid>
                                 <Grid >
-                                    <TextField
-                                        fullWidth
-                                        label="Contraseña"
-                                        type="password"
-                                        variant="outlined"
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        autoComplete='off'
-                                    />
+                                    <PasswordInput
+                                        value={password}
+                                        showPass={showPass}
+                                        onClickHandler={() => setShowPass((showPass) => !showPass)}
+                                        onChangeHandler={(e) => setPassword(e.target.value)}
+                                    ></PasswordInput>
                                 </Grid>
                                 <Grid >
                                     <Button

@@ -1,5 +1,5 @@
 import './App.css'
-import { CircularProgress, createTheme } from '@mui/material'
+import { CircularProgress, createTheme, Snackbar } from '@mui/material'
 import { Routes, Route } from "react-router-dom";
 import { useEffect, useState } from 'react';
 import instance from './axios-instance';
@@ -17,7 +17,10 @@ import MePage from './pages/MePage.jsx';
 
 
 function App() {
+  //para redirigir al login o cosas
   const { auth, setAuth } = useAuth();
+  const [unauth, setunAuth] = useState(false);
+
   const [loading, setLoading] = useState(null)
   //Sólo para usar MontSerrat, por ahora no tengo nada más en el Theme.
   const THEME = createTheme({
@@ -50,6 +53,12 @@ function App() {
         });
     }
   }, []);
+
+  useEffect( ()=>{
+    const kicker = () => setunAuth(true);
+    window.addEventListener('unauthorized', kicker);
+    return () => window.removeEventListener('unauthorized', kicker);
+  }, [])
 
   const handleLogout = async () => {
     try {
@@ -91,6 +100,13 @@ function App() {
           </ProtectedRoute>
         }></Route>
       </Routes>
+      <Snackbar
+        open={unauth}
+        autoHideDuration={4000}
+        onClose={() => setunAuth(false)}
+        message="La sesión caducó, inicie sesión nuevamente."
+        anchorOrigin={{vertical: 'top', horizontal:'center'}}
+      ></Snackbar>
     </>
 
   );

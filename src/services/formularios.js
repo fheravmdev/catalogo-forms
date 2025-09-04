@@ -31,9 +31,9 @@ export async function shareForm(idFormulario, idUser, permiso = "ver") {
 }
 
 // Remove a user's permission from a form
-export async function removeFormPermission(idPermiso) {
+export async function removeFormPermission(idUser, idFormulario) {
     try {
-        const response = await instance.delete(`/formularios/permisos/${idPermiso}`, { withCredentials: true });
+        const response = await instance.post(`/formularios/permisos`, { idUser: idUser, idFormulario: idFormulario }, { withCredentials: true });
         return response.data;
     } catch (error) {
         return { success: false, error: error?.response?.data?.error || error.message };
@@ -72,24 +72,23 @@ export async function getMyForms() {
 
 //Por si acaso lo necesito dps
 async function fetchFormularios() {
-  try {
-    const response = await instance.get("/formularios");
-    const formularios = response.data;
-    console.log(formularios)
-    return formularios;
-  } catch (error) {
-    console.error("Error al obtener fomularios:", error);
-    throw error; 
-  }
+    try {
+        const response = await instance.get("/formularios");
+        const formularios = response.data;
+        return formularios;
+    } catch (error) {
+        console.error("Error al obtener fomularios:", error);
+        throw error;
+    }
 }
 
 export { fetchFormularios }
 
-export async function createForm({ nombre, area, res_url }) {
+export async function createForm({ nombre, area, res_url, edit_url }) {
     try {
         const response = await instance.post(
             "/formularios",
-            { nombre, area, res_url },
+            { nombre, area, res_url, edit_url },
             { withCredentials: true }
         );
         return response.data;
@@ -97,3 +96,32 @@ export async function createForm({ nombre, area, res_url }) {
         return { success: false, error: error?.response?.data?.error || error.message };
     }
 }
+
+
+export async function updateForm( idFormulario, nombre, area, res_url, edit_url) {
+    try {
+        const response = await instance.post(
+            "/formularios/update",
+            { idFormulario: idFormulario, nombre: nombre, area: area, res_url: res_url, edit_url: edit_url },
+            { withCredentials: true }
+        );
+        return response.data
+    } catch (error) {
+        console.log(error)
+        return { succes: false, error: error?.response?.data?.error || error.message };
+    }
+}
+
+export async function deletePermisoForm(idPermiso){
+    try {
+        const response = await instance.post(
+            "/formularios/permisos/borrar",
+            {idPermiso},
+            {withCredentials:true}
+        );
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return { succes: false, error: error?.response?.data?.error || error.message };
+    }
+} 

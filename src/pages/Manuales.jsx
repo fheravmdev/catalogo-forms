@@ -19,8 +19,8 @@ function Manuales({ Theme }) {
         const loadManuales = async () => {
             setLoading(true);
             try {
-                const files = await getMyFiles();
-                const manuals = files.filter(f => f.tipo_archivo && f.tipo_archivo.toLowerCase() === "manual");
+                const result = await getMyFiles();
+                const manuals = result.success? result.files.filter(f => f.tipo_archivo && f.tipo_archivo.toLowerCase() === "manual") :  [];
                 setManuales(manuals);
             } catch (error) {
                 setManuales([]);
@@ -31,7 +31,9 @@ function Manuales({ Theme }) {
         loadManuales();
     }, []);
 
-    const uniqueAreas = [...new Set(manuales.map(m => m.area).filter(Boolean))];
+    const uniqueAreas = [...new Set(manuales.map(m => m?.area).filter(Boolean))].sort(
+        (a, b) => a.localeCompare(b)
+    );
 
     if (loading) return (<CircularProgress sx={{ position: 'absolute', top: "50%", left: "50%" }} />);
     return (
@@ -43,7 +45,7 @@ function Manuales({ Theme }) {
                             <Grid key={area} size={{sm:12, md: 4}}>
                                 <AreaManualsGroup
                                     area={area}
-                                    manuals={manuales.filter(m => m.area === area)}
+                                    manuals={manuales.filter(m => m?.area === area)}
                                     colors={{ top: areaColors[area] || "#888" }}
                                 />
                             </Grid>

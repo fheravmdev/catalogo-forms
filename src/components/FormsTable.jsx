@@ -12,7 +12,6 @@ function FormsTable({ onEdit, onShare, refreshSignal }) {
     const refresh = async () => {
         setLoading(true);
         setForms(await getAllForms());
-        console.log(forms)
         setLoading(false);
     };
 

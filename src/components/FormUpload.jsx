@@ -8,6 +8,7 @@ function FormUpload({ onUpload }) {
     const [nombre, setNombre] = useState("");
     const [area, setArea] = useState(AREAS[0]);
     const [resUrl, setResUrl] = useState("");
+    const [editUrl, setEditUrl] = useState("");
     const [error, setError] = useState("");
 
     const handleUpload = async (e) => {
@@ -19,9 +20,9 @@ function FormUpload({ onUpload }) {
         }
         try {
             const res = await createForm(
-                {nombre, area, res_url: resUrl}
+                { nombre, area, res_url: resUrl, edit_url: editUrl }
             )
-            if(res.success){
+            if (res.success) {
                 alert("Formulario subido exitosamente!!");
             }
             setNombre(""); setArea(AREAS[0]); setResUrl("");
@@ -39,6 +40,7 @@ function FormUpload({ onUpload }) {
                     {AREAS.map(a => <MenuItem key={a} value={a}>{a}</MenuItem>)}
                 </TextField>
                 <TextField label="URL del recurso" value={resUrl} onChange={e => setResUrl(e.target.value)} required sx={{ minWidth: 250 }} />
+                <TextField label="URL a la tabla" value={editUrl} onChange={e => setEditUrl(e.target.value)} sx={{ minWidth: 250 }} />
                 <Button type="submit" variant="contained">Subir formulario</Button>
             </Box>
             {error && <Typography color="error" sx={{ mt: 1 }}>{error}</Typography>}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem } from "@mui/material";
-import instance from "../axios-instance";
+import { updateForm } from "../services/formularios";
 
 const AREAS = ["GESTIÓN HUMANA", "CONTRALORIA", "INFORMÁTICA", "CONTABILIDAD"];
 
@@ -8,6 +8,7 @@ function FormEditModal({ open, form, onClose }) {
     const [nombre, setNombre] = useState(form?.nombre || "");
     const [area, setArea] = useState(form?.area || AREAS[0]);
     const [resUrl, setResUrl] = useState(form?.res_url || "");
+    const [editUrl, setEditUrl] = useState(form?.edit_url || "");
     const [error, setError] = useState("");
 
     const handleSave = async () => {
@@ -17,8 +18,13 @@ function FormEditModal({ open, form, onClose }) {
             return;
         }
         try {
-            await instance.put(`/formularios/${form.idFormulario}`, { nombre, area, res_url: resUrl });
-            onClose();
+
+            const res = await updateForm(form.idFormulario, nombre, area, resUrl, editUrl);
+            if (res.success) {
+                alert('Formulario actualizado exitosamente!')
+                onClose();
+            }
+
         } catch (err) {
             setError(err?.response?.data?.error || "Error al actualizar formulario");
         }
@@ -32,7 +38,8 @@ function FormEditModal({ open, form, onClose }) {
                 <TextField select label="Área" value={area} onChange={e => setArea(e.target.value)} required>
                     {AREAS.map(a => <MenuItem key={a} value={a}>{a}</MenuItem>)}
                 </TextField>
-                <TextField label="URL del recurso" value={resUrl} onChange={e => setResUrl(e.target.value)} required />
+                <TextField label="URL del recurso" value={resUrl} onChange={e => setResUrl(e.target.value)} required autoComplete="off" />
+                <TextField label="URL a la tabla" value={editUrl} onChange={e => setEditUrl(e.target.value)} autoComplete="off"/>
                 {error && <span style={{ color: 'red' }}>{error}</span>}
             </DialogContent>
             <DialogActions>

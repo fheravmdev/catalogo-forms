@@ -13,9 +13,8 @@ const areaColors = {
 
 function Formularios({ Theme, user }) {
     const [formularios, setFormularios] = useState([]);
-    const { setAuth } = useAuth();
+    const {auth, setAuth } = useAuth();
     const [loading, setLoading] = useState(false);
-
     useEffect(() => {
         const loadFormularios = async () => {
             setLoading(true);
@@ -37,8 +36,14 @@ function Formularios({ Theme, user }) {
         loadFormularios();
     }, []);
 
-    const uniqueAreas = [...new Set(formularios.map(form => form.area).filter(Boolean))];
+    const areaCounts = formularios.reduce((acc, form) => {
+        acc[form.area] = (acc[form.area] || 0) + 1;
+        return acc;
+    }, {});
 
+    const uniqueAreas = [...new Set(formularios.map(form => form.area).filter(Boolean))]
+        .sort((a, b) => areaCounts[b] - areaCounts[a] || a.localeCompare(b));
+    
     if (loading) return (<CircularProgress sx={{ position: 'absolute', top: "50%", left: "50%" }}></CircularProgress>)
     return (
         <ThemeProvider theme={Theme}>
@@ -46,7 +51,7 @@ function Formularios({ Theme, user }) {
                 <Stack direction="column" spacing={2} width="100%">
                     <Grid container spacing={2}>
                         {uniqueAreas.map(area => (
-                            <Grid key={area} size={{sm:12, md: 4}}>
+                            <Grid key={area} size={{ sm: 12, md: 4 }}>
                                 <AreaFormsGroup
                                     area={area}
                                     forms={formularios.filter(form => form.area === area)}

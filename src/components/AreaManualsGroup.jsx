@@ -1,7 +1,7 @@
-import { ListSubheader, Paper, List, ListItemButton, ListItemText } from "@mui/material";
+import { ListSubheader, Paper, List, ListItemButton, ListItemText, Tooltip } from "@mui/material";
 import { useState } from "react";
 import { downloadFile } from "../services/files";
-
+import DownloadIcon from '@mui/icons-material/Download';
 function AreaManualsGroup({ area, manuals, colors }) {
     const [loading, setLoading] = useState(false) //por ahora no hago nada con esto ok
 
@@ -32,9 +32,12 @@ function AreaManualsGroup({ area, manuals, colors }) {
                 }
             >
                 {manuals.map(manual => (
-                    <ListItemButton key={manual.idArchivo} onClick={() => { handleManualClick(manual) }}>
-                        <ListItemText primary={manual.nombre} />
-                    </ListItemButton>
+                    <Tooltip title="Descargar">
+                        <ListItemButton key={manual.idArchivo} onClick={() => { handleManualClick(manual) }}>
+                            <ListItemText primary={manual.nombre} />
+                            <DownloadIcon />
+                        </ListItemButton>
+                    </Tooltip>
                 ))}
             </List>
         </Paper>

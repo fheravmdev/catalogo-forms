@@ -1,36 +1,59 @@
 import { useEffect, useState } from "react";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    Paper, Tooltip, Typography, IconButton, Backdrop, CircularProgress
+    Paper, Tooltip, Typography, IconButton, Backdrop, CircularProgress,
+    Dialog,
+    DialogTitle
 } from "@mui/material";
-import { deleteFile, downloadFile, getMyFiles } from "../services/files";
+import { deleteFile, downloadFile, editFile, getMyFiles } from "../services/files";
 import DownloadIcon from "@mui/icons-material/Download";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ShareIcon from "@mui/icons-material/Share";
 import ShareFileModal from "./ShareFileModal";
 import useAuth from "../hooks/useAuth";
+import EditIcon from '@mui/icons-material/Edit';
+import FileUpload from "./FileUpload";
 
-
-function FilesTable({parentRefresh}) {
+function FilesTable({ parentRefresh }) {
     const [files, setFiles] = useState([]);
+
+    //estado para abrir un modal que permita compartir los archivos o modificarlos
     const [shareFile, setShareFile] = useState(null);
+    const [editFile, setEditFile] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    //atado al parentRefresh, para actualizarse con los cambios provenientes de FileUpload.
     const [refresh, setRefresh] = useState(0);
-    const { auth } = useAuth()
+
+    const { auth } = useAuth() //mousequeherramienta misteriosa que nos ayudará en futuras actualizaciones
+
+
+    //Cargar los archivos en la tabla.
     useEffect(() => {
         const loadFiles = async () => {
             try {
                 setLoading(true);
-                const result = await getMyFiles().then(setFiles)
+                const result = await getMyFiles()
+                console.log(result.files)
+                if (result.success) {
+                    setFiles(result.files);
+                }
+                else {
+
+                }
+
             } catch (error) {
                 console.log(error)
+                setError(error)
                 setLoading(false)
             } finally {
+                setError(null)
                 setLoading(false)
             }
         }
         loadFiles();
-    }, [refresh, parentRefresh]);
+    }, [refresh, parentRefresh]); // El dependency array verifica si algo ha cambiado en este componente (refresh), o en MeFilesTab (parentRefresh)
 
     const handleDownload = async (file) => {
         try {
@@ -48,24 +71,29 @@ function FilesTable({parentRefresh}) {
 
     };
 
+    const handleEdit = async (file) => {
+        setEditFile(file);
+    }
+
     const handleDelete = async (file) => {
-        console.log("hola mundo")
         try {
             setLoading(true);
             const result = await deleteFile(file.idArchivo)
-            if(result.success){
+            if (result.success) {
                 alert("Archivo eliminado exitosamente!")
             }
         } catch (error) {
             setLoading(false)
             console.log(error)
+            alert(`Error: ${error}`)
         }
-        finally{
+        finally {
             setLoading(false)
-            setRefresh(refresh+1);
+            setRefresh(refresh + 1);
         }
     };
 
+    //si file no es null, se abre el modal.
     const handleShare = (file) => {
         setShareFile(file);
     };
@@ -120,7 +148,7 @@ function FilesTable({parentRefresh}) {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            files.map((file) => (
+                            files?.map((file) => (
                                 <TableRow key={file.idArchivo} hover>
                                     <TableCell>{file.idArchivo}</TableCell>
                                     <TableCell>{file.nombre}</TableCell>
@@ -132,6 +160,13 @@ function FilesTable({parentRefresh}) {
                                                 <DownloadIcon />
                                             </IconButton>
                                         </Tooltip>
+                                        {file.permisos.includes("editar") && (
+                                            <Tooltip title="Editar">
+                                                <IconButton onClick={() => handleEdit(file)}>
+                                                    <EditIcon></EditIcon>
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
                                         {file.permisos.includes("compartir") && (
                                             <Tooltip title="Compartir">
                                                 <IconButton onClick={() => handleShare(file)}>
@@ -160,8 +195,18 @@ function FilesTable({parentRefresh}) {
                     file={shareFile}
                 />
             )}
+            <Dialog
+                open={!!editFile}
+                onClose={() => { setEditFile(null) }}
+            >
+                <DialogTitle>EDITAR ARCHIVO: {editFile?.nombre}</DialogTitle>
+                <FileUpload handleFilesChanged={() => { setRefresh(refresh + 1); setEditFile(null); }} edit={editFile}></FileUpload>
+
+            </Dialog>
         </>
     );
 }
 
 export default FilesTable;
+
+

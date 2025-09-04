@@ -16,7 +16,7 @@ function MeFilesTab() {
   return (
     <Box padding={1}>
       {
-        auth?.roles.find(role=> role=="CONTRALORIA" || role=="ADMIN") &&
+        auth?.roles.find(role=> role=="CONTRALORIA" || role=="ADMIN" || role == "LEGAL") &&
         <> {/* Formulario para subir archivos, renderizado si el rol del authContext es CONTRALORIA o ADMIN. */}
           <FileUpload handleFilesChanged={handleFilesChanged} ></FileUpload>
         </>

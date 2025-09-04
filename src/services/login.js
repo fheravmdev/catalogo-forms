@@ -16,7 +16,7 @@ async function login(user){
         }
         return result;
     } catch (error) {
-        return {sucess: false, message: 'El servidor no respondió...'}
+        return {sucess: false, message: error?.response?.data?.error || error.message}
     }
 }
 

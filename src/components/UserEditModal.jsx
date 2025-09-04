@@ -5,30 +5,48 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import { removeUserRole, addUserRole, removeUserFileAccess } from "../services/users";
+import { removeUserRole, addUserRole } from "../services/users";
+import RecursoPermissionsTable from "./RecursoPermissionsTable";
+import { removeFormPermission } from "../services/formularios";
+import { removeFilePermission } from "../services/files";
 
-function UserEditModal({ open, onClose, user, refresh }) {
+function UserEditModal({ open, onClose, user: userData, refresh }) {
     const [newRole, setNewRole] = useState("");
     const [roles, setRoles] = useState([]);
     const [archivos, setArchivos] = useState([]);
+    const [formularios, setFormularios] = useState([])
     const [loading, setLoading] = useState(false);
+    const [recursos, setRecursos] = useState([]);
 
-    // Sincroniza el estado local con la prop user cuando cambia
+    //Si el usuario cambia (traído desde el parent), actualizo el componente
     useEffect(() => {
-        if (user) {
-            setRoles(user.roles || []);
-            setArchivos(user.archivos || []);
+        if (userData) {
+            console.log(userData)
+            setRoles(userData.user.roles || []);
+            setArchivos(userData.archivos || []);
+            setFormularios(userData.formularios || [])
+            const recursos = []
+            userData.archivos.map(archivo =>
+                recursos.push({ id: archivo.idArchivo, nombre: archivo.nombre, permisos: archivo.permisos, tipo: "archivo" })
+            )
+            userData.formularios.map(form =>
+                recursos.push({ id: form.idFormulario, nombre: form.nombre, permisos: form.permisos, tipo: "formulario" })
+            )
+            setRecursos(recursos)
+            console.log(recursos)
         }
-    }, [user]);
+    }, [userData]);
+
 
     const handleRemoveRole = async (role) => {
         try {
             setLoading(true);
-            await removeUserRole(user.idUser, role);
+            await removeUserRole(userData.user.idUser, role);
             setRoles(roles.filter(r => r !== role));
             refresh();
         } catch (err) {
             console.log(err)
+            setLoading(false)
         } finally {
             setLoading(false);
         }
@@ -38,30 +56,42 @@ function UserEditModal({ open, onClose, user, refresh }) {
         if (newRole && !roles.includes(newRole)) {
             try {
                 setLoading(true);
-                await addUserRole(user.idUser, newRole);
+                await addUserRole(userData.user.idUser, newRole);
                 setRoles([...roles, newRole]);
                 setNewRole("");
                 refresh();
             } catch (err) {
                 console.log(err)
+                setLoading(false)
             } finally {
                 setLoading(false);
             }
         }
     };
 
-    const handleRemoveFile = async (idArchivo) => {
+    const handleRemoveRecurso = async (recurso) => {
         try {
+            const idRecurso = recurso.id;
             setLoading(true);
-            await removeUserFileAccess(user.idUser, idArchivo);
-            setArchivos(archivos.filter(a => a.idArchivo !== idArchivo));
+            if (recurso.tipo == "archivo") {
+                await removeFilePermission(userData.user.idUser, idRecurso);
+                setArchivos(archivos.filter(a => a.idArchivo !== idRecurso));
+            }
+            if (recurso.tipo == "formulario") {
+                await removeFormPermission(userData.user.idUser, idRecurso);
+                setFormularios(formularios.filter(f => f.idFormulario !== idRecurso));
+            }
             refresh();
         } catch (err) {
             console.log(err)
+            setLoading(false)
+
         } finally {
             setLoading(false);
         }
     };
+
+
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -71,7 +101,7 @@ function UserEditModal({ open, onClose, user, refresh }) {
             >
                 <CircularProgress color="inherit" />
             </Backdrop>
-            <DialogTitle>Editar usuario: {user.username}</DialogTitle>
+            <DialogTitle>Editar usuario: {userData.user.username}</DialogTitle>
             <DialogContent>
                 <Table>
                     <TableHead>
@@ -108,28 +138,13 @@ function UserEditModal({ open, onClose, user, refresh }) {
                         </TableRow>
                     </TableBody>
                 </Table>
-                <Table sx={{ mt: 3 }}>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Archivos con acceso</TableCell>
-                            <TableCell>Permisos</TableCell>
-                            <TableCell>Acción</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {archivos.map(archivo => (
-                            <TableRow key={archivo.idArchivo}>
-                                <TableCell>{archivo.nombre}</TableCell>
-                                <TableCell>{archivo.permisos.join(", ")}</TableCell>
-                                <TableCell>
-                                    <IconButton onClick={() => handleRemoveFile(archivo.idArchivo)}>
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                <RecursoPermissionsTable
+                    recursos={recursos}
+                    handleRemoveRecurso={handleRemoveRecurso}
+                    refresh={refresh}
+                >
+
+                </RecursoPermissionsTable>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cerrar</Button>

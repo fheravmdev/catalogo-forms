@@ -1,30 +1,54 @@
 import { Box, Typography, Paper, Grid, TextField, MenuItem, Button, Backdrop, CircularProgress } from "@mui/material";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import FileInput from "./FileInput";
 
-import { uploadFile } from "../services/files";
+import { editFile, uploadFile } from "../services/files";
 
-function FileUpload({handleFilesChanged}) {
-    const [file, setFile] = useState(null)
+function FileUpload({ handleFilesChanged, edit = null }) {
+    const [file, setFile] = useState(null) //el archivo que se va a cargar
+
+    //información general del archivo
     const [tipoArchivo, setTipoArchivo] = useState('Seleccionar...')
     const [descripcion, setDescripcion] = useState('')
     const [area, setArea] = useState('Seleccionar...')
+
+
     const [loading, setLoading] = useState(false)
     const formRef = useRef()
 
+    useEffect(() => {
+        if (edit) {
+            console.log(edit)
+            setArea(edit.area);
+            setTipoArchivo(edit.tipo_archivo);
+            setDescripcion(edit.descripcion);
+        }
+    }, [edit])
+
+    //subir el archivo
     const handleFileUpload = async (e) => {
         try {
             setLoading(true);
             e.preventDefault();
             if (!file || tipoArchivo === "Seleccionar..." || area === "Seleccionar...") return;
 
+            //se debe enviar como formData, porque lleva un archivo
             const formData = new FormData();
             formData.append("file", file);
             formData.append("tipo_archivo", tipoArchivo);
             formData.append("descripcion", descripcion);
             formData.append("area", area);
-
-            const result = await uploadFile(formData);
+            if (!file || !tipoArchivo || !descripcion || !area) {
+                alert("Falta llenar algunos campos!");
+                return;
+            }
+            let result = {};
+            if (!edit) {
+                result = await uploadFile(formData);
+            }
+            else {
+                result = await editFile(formData, edit.idArchivo);
+            }
             if (result.success) {
                 alert("Archivo subido correctamente");
                 setFile(null);
@@ -34,6 +58,8 @@ function FileUpload({handleFilesChanged}) {
             } else {
                 alert("Error al subir archivo: " + (result.error || "Desconocido"));
             }
+
+            //se manda a llamar el refresher para el parent, en que renderice de nuevo la tabla y todo
             handleFilesChanged();
         } catch (error) {
             setLoading(false)
@@ -43,9 +69,8 @@ function FileUpload({handleFilesChanged}) {
         }
     }
 
-    const tiposArchivo = ["MANUAL", "CONTRATO", "OTROS"]
-    const areas = ["GESTIÓN HUMANA", "CONTRALORIA", "INFORMÁTICA", "CONTABILIDAD"]
-
+    const tiposArchivo = ["MANUAL", "CONTRATO", "FORMATO FÍSICO", "OTROS"] //esto se manejará con bd probablemente en el futuro
+    const areas = ["GESTIÓN HUMANA", "CONTRALORIA", "INFORMÁTICA", "CONTABILIDAD"] //esto también
     const handleFileChanged = (file) => {
         if (file) setFile(file)
     }
@@ -63,25 +88,35 @@ function FileUpload({handleFilesChanged}) {
             <Paper sx={{ p: 2, mb: 3 }} >
                 <Box ref={formRef} component="form" onSubmit={handleFileUpload}>
                     <Grid
-                      container
-                      direction={{ xs: "column", md: "row" }}
-                      spacing={2}
-                      sx={{
-                        alignItems: "center",
-                        justifyContent: "start",
-                        marginBottom: 0
-                      }}
+                        container
+                        direction={{ xs: "column", md: "row" }}
+                        spacing={2}
+                        sx={{
+                            alignItems: "center",
+                            justifyContent: "start",
+                            marginBottom: 0
+                        }}
                     >
-                        <Grid xs={12} md="auto">
+                        <Grid size={!edit ? { xs: 12, md: "auto" } : { md: 12, sx: 12 }}>
+                            {/* handleFileChanged settea el archivo para renderizar el resto del componente */}
                             <FileInput handleFileChanged={handleFileChanged} />
                         </Grid>
                         {file && (
-                            <>
-                                <Grid xs={12} md="auto">
+                            <Grid
+                                container
+                                direction={{ sm: "column", md: "row" }}
+                                spacing={2}
+                                sx={{
+                                    alignItems: "center",
+                                    justifyContent: "start",
+                                    marginBottom: 0
+                                }}
+                            >
+                                <Grid size={!edit ? { xs: 12, md: "auto" } : { md: 12, sx: 12 }}>
                                     <Typography variant="body1" gutterBottom >Subiendo: {file.name}</Typography>
                                 </Grid>
-                                <Grid xs={12} md="auto">
-                                    <TextField 
+                                <Grid size={!edit ? { xs: 12, md: "auto" } : { md: 12, sx: 12 }}>
+                                    <TextField
                                         select
                                         label="Tipo de archivo"
                                         value={tipoArchivo}
@@ -98,7 +133,7 @@ function FileUpload({handleFilesChanged}) {
                                         ))}
                                     </TextField>
                                 </Grid>
-                                <Grid xs={12} md="auto">
+                                <Grid size={!edit ? { xs: 12, md: "auto" } : { md: 12, sx: 12 }}>
                                     <TextField
                                         select
                                         label="Área"
@@ -107,6 +142,7 @@ function FileUpload({handleFilesChanged}) {
                                         required
                                         fullWidth
                                         sx={{ minWidth: { md: 180 } }}
+
                                     >
                                         <MenuItem value="Seleccionar...">
                                             <em>Seleccionar...</em>
@@ -116,26 +152,25 @@ function FileUpload({handleFilesChanged}) {
                                         ))}
                                     </TextField>
                                 </Grid>
-                                <Grid xs={12} md="auto" sx={{ flex: 1 }}>
+                                <Grid size={!edit ? { xs: 12, md: "auto" } : { md: 12, sx: 12 }} sx={{ flex: 1 }}>
                                     <TextField
                                         label="Descripción del archivo"
                                         autoComplete='off'
-                                        value={descripcion}
+                                        value={descripcion || ''}
                                         onChange={(e) => { setDescripcion(e.target.value) }}
                                         fullWidth
                                     />
                                 </Grid>
-                                <Grid xs={12} md="auto">
+                                <Grid size={!edit ? { xs: 12, md: "auto" } : { md: 12, sx: 12 }}>
                                     <Button
                                         type="submit"
                                         fullWidth
-                                        sx={{ backgroundColor: "#673ab7" }}
                                         variant="contained"
                                     >
                                         Subir archivo
                                     </Button>
                                 </Grid>
-                            </>
+                            </Grid>
                         )}
                     </Grid>
                 </Box>
